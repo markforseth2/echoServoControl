@@ -15,18 +15,37 @@
 import fauxmo
 import logging
 import time
-
+import RPi.GPIO as GPIO
 from debounce_handler import debounce_handler
 
+GPIO.setmode(GPIO.BOARD)
+GPIO.setup(12, GPIO.OUT)
+p = GPIO.PWM(12, 50)
+p.start(7.5)
+
 logging.basicConfig(level=logging.DEBUG)
+
 
 class device_handler(debounce_handler):
     """Publishes the on/off state requested,
        and the IP address of the Echo making the request.
     """
-    TRIGGERS = {"device": 52000}
+    TRIGGERS = {"blinds": 52000}
 
     def act(self, client_address, state):
+        if state:
+            try:
+                p.ChangeDutyCycle(10.5)
+                print "opening"
+            except:
+                'error occured when opening'
+        else:
+            try:
+                p.ChangeDutyCycle(3)
+                print "closing"
+            except:
+                'error occured when closing'
+
         print "State", state, "from client @", client_address
         return True
 
