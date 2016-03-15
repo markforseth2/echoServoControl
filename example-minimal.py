@@ -20,34 +20,39 @@ from debounce_handler import debounce_handler
 
 GPIO.setmode(GPIO.BOARD)
 GPIO.setup(12, GPIO.OUT)
-p = GPIO.PWM(12, 50)
-p.start(7.5)
 
 logging.basicConfig(level=logging.DEBUG)
 
+WINDOW_STATUS = "closed"
 
 class device_handler(debounce_handler):
-    """Publishes the on/off state requested,
-       and the IP address of the Echo making the request.
-    """
-    TRIGGERS = {"blinds": 52000}
 
-    def act(self, client_address, state):
-        if state:
-            try:
-                p.ChangeDutyCycle(10.5)
-                print "opening"
-            except:
-                'error occured when opening'
-        else:
-            try:
-                p.ChangeDutyCycle(3)
-                print "closing"
-            except:
-                'error occured when closing'
+	TRIGGERS = {"blinds": 52000}
 
-        print "State", state, "from client @", client_address
-        return True
+
+	def act(self, client_address, state):
+		global WINDOW_STATUS 
+		pin = GPIO.PWM(12, 50)
+		if WINDOW_STATUS is "open" and not state:
+			try: 
+				pin.start(9)
+				time.sleep(.5)
+				pin.stop()
+				WINDOW_STATUS = "closed"
+			except:
+				print 'error occured when closing'	
+		elif WINDOW_STATUS is "closed" and state:
+
+			try:
+				pin.start(3.5)
+				time.sleep(.5)
+				pin.stop()
+				WINDOW_STATUS = "open"
+			except:
+				print 'error occured when opening'
+
+		print "State", state, "from client @", client_address
+		return True
 
 if __name__ == "__main__":
     # Startup the fauxmo server
@@ -56,7 +61,6 @@ if __name__ == "__main__":
     u = fauxmo.upnp_broadcast_responder()
     u.init_socket()
     p.add(u)
-
     # Register the device callback as a fauxmo handler
     d = device_handler()
     for trig, port in d.TRIGGERS.items():
