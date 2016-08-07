@@ -1,0 +1,14 @@
+blinds.py:22: RuntimeWarning: This channel is already in use, continuing anyway.  Use GPIO.setwarnings(False) to disable warnings.
+  GPIO.setup(12, GPIO.OUT)
+DEBUG:root:Listening for UPnP broadcasts
+DEBUG:root:got local address of 192.168.1.30
+Traceback (most recent call last):
+  File "blinds.py", line 67, in <module>
+    fauxmo.fauxmo(trig, u, p, None, port, d)
+  File "/home/pi/echo/echoServoControl/fauxmo.py", line 195, in __init__
+    upnp_device.__init__(self, listener, poller, port, "http://%(ip_address)s:%(port)s/setup.xml", "Unspecified, UPnP/1.0, Unspecified", persistent_uuid, other_headers=other_headers, ip_address=ip_address)
+  File "/home/pi/echo/echoServoControl/fauxmo.py", line 130, in __init__
+    self.socket.bind((self.ip_address, self.port))
+  File "/usr/lib/python2.7/socket.py", line 224, in meth
+    return getattr(self._sock,name)(*args)
+socket.error: [Errno 98] Address already in use
